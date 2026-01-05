@@ -275,7 +275,7 @@ export default class ArchiveManagerPlugin extends Plugin {
     }
   }
 
-  private async readArchiveMetadata(file: TAbstractFile): Promise<ArchiveMetadata | null> {
+  private readArchiveMetadata(file: TAbstractFile): ArchiveMetadata | null {
     if (file instanceof TFile) {
       if (file.extension === 'md') {
         // Read from frontmatter
@@ -716,7 +716,7 @@ class ArchiveManagerSettingTab extends PluginSettingTab {
       .setDesc('The folder where archived items will be moved to')
       .addText((text) =>
         text
-          .setPlaceholder('05 Archive')
+          .setPlaceholder('archive')
           .setValue(this.plugin.settings.archivePath)
           .onChange(async (value) => {
             this.plugin.settings.archivePath = value;
