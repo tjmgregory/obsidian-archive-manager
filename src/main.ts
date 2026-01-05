@@ -69,7 +69,7 @@ export default class ArchiveManagerPlugin extends Plugin {
         const file = this.app.workspace.getActiveFile();
         if (file && !this.isInArchive(file)) {
           if (!checking) {
-            this.archiveItem(file);
+            void this.archiveItem(file);
           }
           return true;
         }
@@ -85,7 +85,7 @@ export default class ArchiveManagerPlugin extends Plugin {
         const file = this.app.workspace.getActiveFile();
         if (file && this.isInArchive(file)) {
           if (!checking) {
-            this.unarchiveItem(file);
+            void this.unarchiveItem(file);
           }
           return true;
         }
@@ -189,7 +189,7 @@ export default class ArchiveManagerPlugin extends Plugin {
       // Show undo notice
       this.showUndoNotice('archive', originalPath, newPath, movedFile, fileName);
     } catch (error) {
-      new Notice(`Failed to archive: ${error}`);
+      new Notice(`Failed to archive: ${error instanceof Error ? error.message : String(error)}`);
       console.error('Archive error:', error);
     }
   }
@@ -250,7 +250,7 @@ export default class ArchiveManagerPlugin extends Plugin {
       // Show undo notice
       this.showUndoNotice('unarchive', currentPath, targetPath, movedFile, file.name);
     } catch (error) {
-      new Notice(`Failed to unarchive: ${error}`);
+      new Notice(`Failed to unarchive: ${error instanceof Error ? error.message : String(error)}`);
       console.error('Unarchive error:', error);
     }
   }
@@ -334,7 +334,7 @@ Archived on ${displayDate} from \`${originalPath}\`.
     await this.app.vault.create(sidecarPath, content);
   }
 
-  private async readSidecarFile(file: TFile): Promise<ArchiveMetadata | null> {
+  private readSidecarFile(file: TFile): ArchiveMetadata | null {
     const sidecarPath = `${file.path}.${this.settings.indexFileName}`;
     const sidecar = this.app.vault.getAbstractFileByPath(sidecarPath);
     if (sidecar instanceof TFile) {
@@ -354,7 +354,7 @@ Archived on ${displayDate} from \`${originalPath}\`.
     const sidecarPath = `${file.path}.${this.settings.indexFileName}`;
     const sidecar = this.app.vault.getAbstractFileByPath(sidecarPath);
     if (sidecar instanceof TFile) {
-      await this.app.vault.delete(sidecar);
+      await this.app.fileManager.trashFile(sidecar);
     }
   }
 
@@ -397,7 +397,7 @@ ${contentsSection}
     return result;
   }
 
-  private async readFolderIndexFile(folder: TFolder): Promise<ArchiveMetadata | null> {
+  private readFolderIndexFile(folder: TFolder): ArchiveMetadata | null {
     const indexPath = `${folder.path}/${this.settings.indexFileName}`;
     const indexFile = this.app.vault.getAbstractFileByPath(indexPath);
     if (indexFile instanceof TFile) {
@@ -417,7 +417,7 @@ ${contentsSection}
     const indexPath = `${folder.path}/${this.settings.indexFileName}`;
     const indexFile = this.app.vault.getAbstractFileByPath(indexPath);
     if (indexFile instanceof TFile) {
-      await this.app.vault.delete(indexFile);
+      await this.app.fileManager.trashFile(indexFile);
     }
   }
 
@@ -455,8 +455,7 @@ ${contentsSection}
 
     const undoButton = document.createElement('a');
     undoButton.textContent = 'Undo';
-    undoButton.style.cursor = 'pointer';
-    undoButton.style.textDecoration = 'underline';
+    undoButton.addClass('archive-manager-undo-link');
     undoButton.onclick = () => this.performUndo();
     fragment.appendChild(undoButton);
 
@@ -503,7 +502,7 @@ ${contentsSection}
       const action = type === 'archive' ? 'archive' : 'unarchive';
       new Notice(`Undid ${action} of '${file.name}'`);
     } catch (error) {
-      new Notice(`Failed to undo: ${error}`);
+      new Notice(`Failed to undo: ${error instanceof Error ? error.message : String(error)}`);
       console.error('Undo error:', error);
     }
   }
@@ -761,7 +760,7 @@ class ArchiveManagerSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Show in context menu')
-      .setDesc('Add Archive/Unarchive options to the right-click context menu')
+      .setDesc('Add archive/unarchive options to the right-click context menu')
       .addToggle((toggle) =>
         toggle.setValue(this.plugin.settings.showInContextMenu).onChange(async (value) => {
           this.plugin.settings.showInContextMenu = value;
@@ -811,7 +810,7 @@ class ConflictModal extends Modal {
     const { contentEl } = this;
     contentEl.empty();
 
-    contentEl.createEl('h2', { text: 'File Conflict' });
+    contentEl.createEl('h2', { text: 'File conflict' });
     contentEl.createEl('p', {
       text: `A file or folder already exists at: ${this.path}`,
     });
@@ -823,7 +822,11 @@ class ConflictModal extends Modal {
     replaceBtn.onclick = async () => {
       const existing = this.app.vault.getAbstractFileByPath(this.path);
       if (existing) {
-        await this.app.vault.trash(existing, true);
+        if (existing instanceof TFile) {
+          await this.app.fileManager.trashFile(existing);
+        } else {
+          await this.app.vault.trash(existing, true);
+        }
       }
       this.close();
       this.resolve(this.path);
@@ -891,7 +894,7 @@ class PathMissingModal extends Modal {
     const { contentEl } = this;
     contentEl.empty();
 
-    contentEl.createEl('h2', { text: 'Original Location Missing' });
+    contentEl.createEl('h2', { text: 'Original location missing' });
     contentEl.createEl('p', {
       text: `The original location no longer exists: ${this.originalPath}`,
     });
@@ -935,7 +938,7 @@ class ChangeIndexFileNameModal extends Modal {
     const { contentEl } = this;
     contentEl.empty();
 
-    contentEl.createEl('h2', { text: 'Change Index File Name' });
+    contentEl.createEl('h2', { text: 'Change index file name' });
 
     const existingCount = this.plugin.findAllIndexFiles().length;
     if (existingCount > 0) {
@@ -1042,7 +1045,7 @@ class BrowseArchiveModal extends FuzzySuggestModal<{
   }
 
   onChooseItem(item: { file: TAbstractFile; metadata: ArchiveMetadata }) {
-    this.plugin.unarchiveItem(item.file);
+    void this.plugin.unarchiveItem(item.file);
   }
 
   onNoSuggestion() {
