@@ -202,7 +202,7 @@ export default class ArchiveManagerPlugin extends Plugin {
 
     try {
       // Read original path from metadata
-      const metadata = await this.readArchiveMetadata(file);
+      const metadata = this.readArchiveMetadata(file);
       if (!metadata) {
         new Notice('No archive metadata found. Cannot determine original location.');
         return;
@@ -716,7 +716,6 @@ class ArchiveManagerSettingTab extends PluginSettingTab {
       .setDesc('The folder where archived items will be moved to')
       .addText((text) =>
         text
-          .setPlaceholder('archive')
           .setValue(this.plugin.settings.archivePath)
           .onChange(async (value) => {
             this.plugin.settings.archivePath = value;
