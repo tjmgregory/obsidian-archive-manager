@@ -18,7 +18,7 @@ bun run lint:fix   # Auto-fix lint issues
 Symlink the built plugin to your vault:
 
 ```bash
-ln -s ~/projects/obsidian-archive-manager ~/.obsidian-vault/.obsidian/plugins/archive-manager
+ln -s ~/projects/obsidian-archive-manager ~/Documents/Obsidian/main/.obsidian/plugins/archive-manager
 ```
 
 Then enable the plugin in Obsidian settings.

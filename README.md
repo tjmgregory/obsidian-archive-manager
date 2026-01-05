@@ -126,8 +126,8 @@ If the original folder structure was deleted, you can:
 
 ## Support
 
-- [Report issues](https://github.com/tjmgregory/obsidian-plugins/issues)
-- [Source code](https://github.com/tjmgregory/obsidian-plugins)
+- [Report issues](https://github.com/tjmgregory/obsidian-archive-manager/issues)
+- [Source code](https://github.com/tjmgregory/obsidian-archive-manager)
 
 ## License
 
