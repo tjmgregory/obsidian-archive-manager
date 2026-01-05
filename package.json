@@ -1,0 +1,38 @@
+{
+  "name": "obsidian-archive-manager",
+  "version": "1.0.0",
+  "description": "Archive and unarchive files/folders with automatic metadata tracking for Obsidian",
+  "main": "main.js",
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check src/",
+    "lint:fix": "biome check --write src/",
+    "format": "biome format --write src/",
+    "version": "node scripts/version-bump.mjs && git add manifest.json"
+  },
+  "keywords": [
+    "obsidian",
+    "plugin",
+    "archive",
+    "para"
+  ],
+  "author": "Theo Gregory",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tjmgregory/obsidian-archive-manager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tjmgregory/obsidian-archive-manager/issues"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.0",
+    "@types/node": "^22.0.0",
+    "builtin-modules": "^4.0.0",
+    "obsidian": "latest",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0"
+  }
+}
